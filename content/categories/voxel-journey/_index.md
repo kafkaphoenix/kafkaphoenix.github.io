@@ -1,6 +1,6 @@
 ---
 title: Voxel Journey
-description: Here, I document my experiences, challenges, and triumphs as I explore the fascinating world of voxel-based game development.
+description: In this journal, I will document my journey, challenges, and learnings as I explore the fascinating world of voxel-based game development.
 image:
 
 # Badge style
