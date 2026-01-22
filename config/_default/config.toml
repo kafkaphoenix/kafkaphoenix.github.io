@@ -1,5 +1,5 @@
 # Change baseurl before deploy
-baseurl = "https://kafkacodes.dev"
+baseurl = "kafkaphoenix.github.io"
 languageCode = "en-us"
 title = "Kafka Codes"
 
