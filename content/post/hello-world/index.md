@@ -1,20 +1,12 @@
 ---
 title: Hello World
-description: Welcome to Hugo Theme Stack
+description: Welcome to kafkacodes
 slug: hello-world
-date: 2022-03-06 00:00:00+0000
-image: cover.jpg
+date: 2026-01-22
 categories:
-    - Example Category
+    - About Me
 tags:
-    - Example Tag
-weight: 1       # You can add weight to some posts to override the default sorting (date descending)
+    - About Me
 ---
 
-Welcome to Hugo theme Stack. This is your first post. Edit or delete it, then start writing!
-
-For more information about this theme, check the documentation: https://stack.jimmycai.com/
-
-Want a site like this? Check out [hugo-theme-stack-stater](https://github.com/CaiJimmy/hugo-theme-stack-starter)
-
-> Photo by [Pawel Czerwinski](https://unsplash.com/@pawel_czerwinski) on [Unsplash](https://unsplash.com/)
+Welcome to kafkacodes. I'm excited to share my journey into the world of coding, technology, and everything in between. This blog will serve as a platform for me to document my experiences, share insights, and connect with fellow enthusiasts.
