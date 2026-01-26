@@ -25,25 +25,25 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: 0
 
             - name: Cache Hugo resources
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               env:
                   cache-name: cache-hugo-resources
               with:
                   path: resources
                   key: ${{ env.cache-name }}
 
-            - uses: actions/setup-go@v5
+            - uses: actions/setup-go@v6
               with:
                   go-version: "^1.17.0"
             - run: go version
 
             - name: Setup Hugo
-              uses: peaceiris/actions-hugo@v2
+              uses: peaceiris/actions-hugo@v3
               with:
                   hugo-version: "latest"
                   extended: true
@@ -56,7 +56,7 @@ jobs:
               run: hugo --minify --gc --baseURL "${{ steps.pages.outputs.base_url }}/"
               
             - name: Upload artifact
-              uses: actions/upload-pages-artifact@v3
+              uses: actions/upload-pages-artifact@v4
               with:
                 path: ./public
 
