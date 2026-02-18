@@ -36,7 +36,7 @@ There is no strict schedule, I will work on this whenever I have the time and mo
 In short, this journal will link to daily commits with brief explanations of what was done, which resources were used, and what challenges were faced, so others can follow along and learn from my experience.
 
 The repository for this project can be found here:
-[Voxel Journey](https://github.com/kafkaphoenix/voxel-journey)
+[Voxel Journey](https://github.com/kafkaphoenix/voxeljourney)
 
 So that’s it for now! I’m excited to start this journey and share my experiences with you. Let’s build a voxel engine from scratch—one day at a time!
 
