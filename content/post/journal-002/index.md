@@ -4,9 +4,11 @@ description: "Despite what I said in my first post, I ended up writing a simple 
 slug: journal-002
 date: 2026-02-27
 categories:
-    - Voxel Journey, Game Engine
+    - Voxel Journey
+    - Game Engine
 tags:
-    - Voxel Journey, Game Engine
+    - Voxel Journey
+    - Game Engine
 ---
 
 ## Preface
