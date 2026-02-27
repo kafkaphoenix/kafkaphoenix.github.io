@@ -19,7 +19,7 @@ Once I actually started the project, I realized I needed something to handle the
 
 Therefore, I decided to write an engine as simple as possible while still being reasonably efficient and following good design practices.
 
-The engine itself can serve as a template for other projects and be modified as needed. The repository can be found at [github.com/kafkaphoenix/simpleengine](https://github.com/kafkaphoenix/simpleengine) and the repository for the voxel project with the integrated engine is at [github.com/kafkaphoenix/voxeljourney](https://github.com/kafkaphoenix/voxeljourney).
+The engine itself can serve as a template for other projects and be modified as needed. The repository can be found at [simpleengine](https://github.com/kafkaphoenix/simpleengine) and the repository for the voxel project with the integrated engine is at [voxeljourney](https://github.com/kafkaphoenix/voxeljourney).
 
 ## Engine overview
 
@@ -81,9 +81,14 @@ This way, the code that uses the assets does not have to worry about memory mana
 
 Types of assets:
 - Shader: Loads the shader source code from a file, compiles it, and links it into a shader program that can be used to draw Renderables. Currently, it only supports simple shaders with vertex and fragment shaders, but it could be expanded to support geometry shaders, compute shaders, etc.
-- Texture: Creates an OpenGL texture ID and configures it with the appropriate parameters for use in the shader. Currently, it only supports 2D textures, but it could be expanded to support cubemaps, texture arrays, etc. It automatically generates mipmaps to reduce aliasing and improve performance at a distance and applies Anisotropic filtering to improve texture quality at oblique angles (avoiding the [Moiré](https://en.wikipedia.org/wiki/Moir%C3%A9_pattern) effect).
+- Texture: Creates an OpenGL texture ID and configures it with the appropriate parameters for use in the shader. Currently, it only supports 2D textures, but it could be expanded to support cubemaps, texture arrays, etc. It automatically generates mipmaps to reduce aliasing and improve performance at a distance and applies Anisotropic filtering to improve texture quality at oblique angles (avoiding the [Moiré effect](https://en.wikipedia.org/wiki/Moir%C3%A9_pattern)).
 - Model: Loads the model's geometry into a Mesh and the associated textures and shaders into a Material. Currently, it only supports static models, but it could be expanded to support animations, morph targets, etc.
 - Material: Maintains a reference to a shader and its associated textures, as well as the rendering state, such as whether it is transparent or not, or the color if there are no textures.
 
 ## Conclusion
-So well, that's all for today's blog post! I hope this gives you a good overview of the engine's architecture and design goals. Feel free to check the [code](https://github.com/kafkaphoenix/simpleengine) and ask any questions you may have. In the next post, we will start working on the voxel engine itself, so stay tuned!
+So well, that's all for today's blog post! I hope this gives you a good overview of the engine's architecture and design goals. Feel free to check the [code](https://github.com/kafkaphoenix/simpleengine) and ask any questions you may have.
+
+Let's close the post with an image of the engine rendering the Sponza demo model, which is a classic 3D model used for testing and demonstrating rendering techniques.
+![Sponza](sponza.png)
+
+In the next post, we will start working on the voxel engine itself, so stay tuned!
