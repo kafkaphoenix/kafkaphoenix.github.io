@@ -1,5 +1,5 @@
 ---
-title: Day 2 - Reality Check: A Simple Engine
+title: Day 2 - Reality Check, A Simple Engine
 description: "Despite what I said in my first post, I ended up writing a simple engine to support the voxel project. In this post, I’ll go over the engine’s architecture and design goals."
 slug: journal-002
 date: 2026-02-27
@@ -82,3 +82,6 @@ Types of assets:
 - Texture: Creates an OpenGL texture ID and configures it with the appropriate parameters for use in the shader. Currently, it only supports 2D textures, but it could be expanded to support cubemaps, texture arrays, etc. It automatically generates mipmaps to reduce aliasing and improve performance at a distance and applies Anisotropic filtering to improve texture quality at oblique angles (avoiding the [Moiré](https://en.wikipedia.org/wiki/Moir%C3%A9_pattern) effect).
 - Model: Loads the model's geometry into a Mesh and the associated textures and shaders into a Material. Currently, it only supports static models, but it could be expanded to support animations, morph targets, etc.
 - Material: Maintains a reference to a shader and its associated textures, as well as the rendering state, such as whether it is transparent or not, or the color if there are no textures.
+
+## Conclusion
+So well, that's all for today's blog post! I hope this gives you a good overview of the engine's architecture and design goals. Feel free to check the [code](https://github.com/kafkaphoenix/simpleengine) and ask any questions you may have. In the next post, we will start working on the voxel engine itself, so stay tuned!
