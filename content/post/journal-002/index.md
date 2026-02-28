@@ -87,9 +87,9 @@ Types of assets:
 - Material: Maintains a reference to a shader and its associated textures, as well as the rendering state, such as whether it is transparent or not, or the color if there are no textures.
 
 ## Conclusion
-So well, that's all for today's blog post! I hope this gives you a good overview of the engine's architecture and design goals. Feel free to check the [code](https://github.com/kafkaphoenix/simpleengine) and ask any questions you may have.
+So well, that's all for today's post! I hope this gives you a clear overview of the engine's architecture and design goals. Feel free to explore the [code](https://github.com/kafkaphoenix/simpleengine) and ask any questions you may have.
 
-Let's close the post with an image of the engine rendering the Sponza demo model, which is a classic 3D model used for testing and demonstrating rendering techniques.
+Let's wrap up with a screenshot of the engine rendering the "Sponza" model, which is a classic 3D scene commonly used for testing and demonstrating rendering techniques. On my laptop (without a GPU), it loads in about 5 seconds!
 ![Sponza](sponza.png)
 
 In the next post, we will start working on the voxel engine itself, so stay tuned!
