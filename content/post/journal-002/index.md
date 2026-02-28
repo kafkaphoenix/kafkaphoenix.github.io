@@ -9,7 +9,7 @@ categories:
 tags:
     - Voxel Journey
     - Game Engine
-image: sponza.png
+image: sponza_glb.png
 ---
 
 ## Preface
