@@ -89,7 +89,13 @@ Types of assets:
 ## Conclusion
 So well, that's all for today's post! I hope this gives you a clear overview of the engine's architecture and design goals. Feel free to explore the [code](https://github.com/kafkaphoenix/simpleengine) and ask any questions you may have.
 
-Let's wrap up with a screenshot of the engine rendering the "Sponza" model, which is a classic 3D scene commonly used for testing and demonstrating rendering techniques. On my laptop (without a GPU), it loads in about 5 seconds!
-![Sponza](sponza.png)
+Let's wrap up with a screenshot of the engine rendering the "Sponza" model, a classic 3D scene 
+commonly used for testing rendering techniques. Tested on an i7 laptop without a dedicated GPU.
+
+![Sponza GLTF](sponza_gltf.png)
+*Sponza GLTF, loads in ~5 seconds*
+
+![Sponza GLB](sponza_glb.png)
+*Sponza GLB, loads in ~3 seconds and uses less memory than the GLTF version*
 
 In the next post, we will start working on the voxel engine itself, so stay tuned!
