@@ -26,7 +26,7 @@ The engine itself can serve as a template for other projects and be modified as 
 
 The engine is written in C++23, with OpenGL 4.6 for rendering and GLFW for window and input management. To handle dependencies and build the project, it uses [CMake](https://cmake.org/), [Makefile](https://www.gnu.org/software/make/manual/make.html), and [Vcpkg](https://vcpkg.io/en/).
 
-It is divided into four main parts: Core, Rendering, Assets, and Scene. I avoided including systems like audio, physics, debugging tools, scripting, etc., as I wanted only the minimum to start with voxels and expand it as needed.
+It is divided into four main parts: Core, Render, Assets, and Scene. I avoided including systems like audio, physics, debugging tools, scripting, etc., as I wanted only the minimum to start with voxels and expand it as needed.
 
 ## Engine architecture
 
@@ -55,11 +55,11 @@ For the voxel project, we don't need a full ECS system for now, so the scene is 
 
 > A mesh can be shared by multiple Renderables, for example, a voxel cube can be used for all the voxels in the world, while the material can vary depending on the type of voxel (grass, dirt, stone, etc.) or even within the same type if we want to add visual variety. It can also come from an imported 3D model, such as a tree or a rock.
 
-### Rendering
+### Render
 
 It’s responsible for drawing the scene to the screen; otherwise, we would just see an empty window.
 
-The goal of this post is not to explain in detail how OpenGL works; for that, I highly recommend [LearnOpenGL](https://learnopengl.com/). However, I want to give a general idea of how the rendering system is structured, so I will explain it at a high level and leave that link for those who want to delve into the details.
+The goal of this post is not to explain in detail how OpenGL works; for that, I highly recommend [LearnOpenGL](https://learnopengl.com/). However, I want to give a general idea of how the rendering logic is structured, so I will explain it at a high level and leave that link for those who want to delve into the details.
 
 Each frame, the Renderer receives the Renderables from the scene and prepares them for drawing. The Renderer groups them by Mesh and Material to minimize GPU state changes (CPU batching), and then uses instanced rendering to draw multiple copies of the same geometry with different transforms and materials. This way, instead of making a draw call for each Renderable, hundreds or thousands can be drawn with a single call, depending on the configured batch size, which significantly improves performance.
 
@@ -71,7 +71,7 @@ It also has a Frame UBO (Uniform Buffer Object) to send common data that affects
 
 Finally, before a Renderable is submitted for that frame, a basic frustum culling step is performed. In simple terms, this means discarding those Renderables that are not within the camera's field of view, which reduces the amount of geometry sent to the GPU and improves performance. To do this, we use a property within the Mesh called AABB (Axis-Aligned Bounding Box), which we can imagine as a box that encloses all the geometry of the mesh and aligns with the world's axes. If that box does not intersect with the camera's frustum, then the Renderable is not drawn.
 
-> No advanced rendering systems such as framebuffer, deferred rendering, shadow mapping, etc. have been implemented since they are not necessary at the moment.
+> No advanced rendering mechanics such as framebuffer, deferred rendering, shadow mapping, etc. have been implemented since they are not necessary at the moment.
 
 ### Assets
 The asset system is responsible for loading and managing the game's resources, such as shaders, textures, models, and materials. It is important to have an efficient asset system to avoid loading the same resource multiple times and to facilitate resource management in the project.
@@ -84,7 +84,7 @@ Types of assets:
 - Shader: Loads the shader source code from a file, compiles it, and links it into a shader program that can be used to draw Renderables. Currently, it only supports simple shaders with vertex and fragment shaders, but it could be expanded to support geometry shaders, compute shaders, etc.
 - Texture: Creates an OpenGL texture ID and configures it with the appropriate parameters for use in the shader. Currently, it only supports 2D textures, but it could be expanded to support cubemaps, texture arrays, etc. It automatically generates mipmaps to reduce aliasing and improve performance at a distance and applies Anisotropic filtering to improve texture quality at oblique angles (avoiding the [Moiré effect](https://en.wikipedia.org/wiki/Moir%C3%A9_pattern)).
 - Model: Loads the model's geometry into a Mesh and the associated textures and shaders into a Material. Currently, it only supports static models, but it could be expanded to support animations, morph targets, etc.
-- Material: Maintains a reference to a shader and its associated textures, as well as the rendering state, such as whether it is transparent or not, or the color if there are no textures.
+- Material: Maintains a reference to a shader and its associated textures, as well as the render state, such as whether it is transparent or not, or the color if there are no textures.
 
 ## Conclusion
 So well, that's all for today's post! I hope this gives you a clear overview of the engine's architecture and design goals. Feel free to explore the [code](https://github.com/kafkaphoenix/simpleengine) and ask any questions you may have.
