@@ -24,7 +24,7 @@ The engine itself can serve as a template for other projects and be modified as 
 
 ## Engine overview
 
-The engine is written in C++, with OpenGL for rendering and GLFW for window and input management. To handle dependencies and build the project, it uses [CMake](https://cmake.org/), [Makefile](https://www.gnu.org/software/make/manual/make.html), and [Vcpkg](https://vcpkg.io/en/).
+The engine is written in C++23, with OpenGL 4.6 for rendering and GLFW for window and input management. To handle dependencies and build the project, it uses [CMake](https://cmake.org/), [Makefile](https://www.gnu.org/software/make/manual/make.html), and [Vcpkg](https://vcpkg.io/en/).
 
 It is divided into four main parts: Core, Rendering, Assets, and Scene. I avoided including systems like audio, physics, debugging tools, scripting, etc., as I wanted only the minimum to start with voxels and expand it as needed.
 
@@ -40,9 +40,9 @@ The configuration file config.ini is read at startup to load various runtime opt
 
 ### Scene
 
-In games, the term "scene" can refer to the game menu, different levels of a game, or, in a survival game, the entire world at once. It contains the entities in the world, processes their logic, and calls the renderer to draw them on the screen.
+In games, the term "scene" can refer to the game menu, different levels of a game, or, in a survival game, the entire world at once. It contains the entities in the world, processes their logic, gathers light data, and calls the renderer to draw them on the screen.
 
-These entities can be things like the player, enemies, trees, interactable objects, etc. In the case of a voxel game, the scene contains the voxels/cubes that are generated and destroyed dynamically as the player moves through the world.
+These entities can be things like the player, enemies, trees, the sun, interactable objects, etc. In the case of a voxel game, the scene contains the voxels/cubes that are generated and destroyed dynamically as the player moves through the world.
 
 For the voxel project, we don't need a full ECS system for now, so the scene is quite simple and consists of:
 - Player: Controls the camera and movement. For now, it has no physics or interaction logic, it just moves through the world and looks around without a visible 3D model.
