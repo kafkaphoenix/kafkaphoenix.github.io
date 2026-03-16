@@ -44,7 +44,7 @@ In games, the term "scene" can refer to the game menu, different levels of a gam
 
 These entities can be things like the player, enemies, trees, the sun, interactable objects, etc. In the case of a voxel game, the scene contains the voxels/cubes that are generated and destroyed dynamically as the player moves through the world.
 
-For the voxel project, we don't need a full ECS system for now, so the scene is quite simple and consists of:
+For the voxel project, I don't need a full ECS system for now, so the scene is quite simple and consists of:
 - Player: Controls the camera and movement. For now, it has no physics or interaction logic, it just moves through the world and looks around without a visible 3D model.
 - Sun: A directional light that illuminates the scene.
 - Sky: A single-color background for the scene that contains the sun. It could be expanded to have a dynamic sky with clouds, stars, etc.
@@ -53,25 +53,29 @@ For the voxel project, we don't need a full ECS system for now, so the scene is 
     - Material: The appearance of the object.
     - Transform: The position, rotation, and scale of the object in the world.
 
-> A mesh can be shared by multiple Renderables, for example, a voxel cube can be used for all the voxels in the world, while the material can vary depending on the type of voxel (grass, dirt, stone, etc.) or even within the same type if we want to add visual variety. It can also come from an imported 3D model, such as a tree or a rock.
+> A mesh can be shared by multiple Renderables, for example, a voxel cube can be used for all the voxels in the world, while the material can vary depending on the type of voxel (grass, dirt, stone, etc.) or even within the same type to add visual variety. It can also come from an imported 3D model, such as a tree or a rock.
 
 ### Render
 
-It’s responsible for drawing the scene to the screen; otherwise, we would just see an empty window.
+The renderer is responsible for drawing the scene to the screen; otherwise, we would just see an empty window.
 
 The goal of this post is not to explain in detail how OpenGL works; for that, I highly recommend [LearnOpenGL](https://learnopengl.com/). However, I want to give a general idea of how the rendering logic is structured, so I will explain it at a high level and leave that link for those who want to delve into the details.
 
-Each frame, the Renderer receives the Renderables from the scene and prepares them for drawing. The Renderer groups them by Mesh and Material to minimize GPU state changes (CPU batching), and then uses instanced rendering to draw multiple copies of the same geometry with different transforms and materials. This way, instead of making a draw call for each Renderable, hundreds or thousands can be drawn with a single call, depending on the configured batch size, which significantly improves performance.
+Each frame, the Renderer receives the Renderables from the scene and prepares them for drawing. The Renderer groups them by Mesh and Material to minimize GPU state changes (CPU batching), sort them by opaques and transparents, and then uses instanced rendering to draw multiple copies of the same geometry with different transforms and materials. This way, instead of making a draw call for each Renderable, hundreds or thousands can be drawn with a single call, depending on the configured batch size, which significantly improves performance.
 
 > We can imagine, for example, a field of grass, where each blade of grass is a Renderable with the same geometry and material but with different positions and rotations. Instead of making a draw call for each blade, they can all be drawn with a single call using instanced rendering.
 
-It also has a Frame UBO (Uniform Buffer Object) to send common data that affects all Renderables, such as the camera's view/projection matrix or light information (Sun or ambient light). This allows the shader to access this information without needing to send it each time a Renderable is drawn, which improves performance and simplifies the shader.
+This type of renderer is commonly referred to as a forward renderer with instancing. It is well suited for simple scenes with a limited number of lights, which is the case for this project. Additionally, it is easier to implement and understand compared to more advanced rasterization techniques such as forward+, deferred rendering, or clustered rendering.
 
-> Another optimization we implemented is calculating the model and normal matrix on the CPU, which avoids having to do it in the shader for each vertex, which can be costly in terms of performance, especially if there are many vertices.
+Another fundamentally different approach is ray tracing, which does not rely on rasterization. Instead, it simulates the physical behavior of light by tracing rays as they interact with objects in the scene.
 
-Finally, before a Renderable is submitted for that frame, a basic frustum culling step is performed. In simple terms, this means discarding those Renderables that are not within the camera's field of view, which reduces the amount of geometry sent to the GPU and improves performance. To do this, we use a property within the Mesh called AABB (Axis-Aligned Bounding Box), which we can imagine as a box that encloses all the geometry of the mesh and aligns with the world's axes. If that box does not intersect with the camera's frustum, then the Renderable is not drawn.
+> For a good explanation of the diferent rendering techniques, I recommend this [blog](https://c0de517e.blogspot.com/2016/08/the-real-time-rendering-continuum.html) by Angelo Pesce.
 
-> No advanced rendering mechanics such as framebuffer, deferred rendering, shadow mapping, etc. have been implemented since they are not necessary at the moment.
+The renderer also has a Frame UBO (Uniform Buffer Object) to send common data that affects all Renderables, such as the camera's view/projection matrix or light information (Sun or ambient light). This allows the shader to access this information without needing to send it each time a Renderable is drawn, which improves performance and simplifies the shader.
+
+> Another optimization I implemented is calculating the model and normal matrix on the CPU, which avoids having to do it in the shader for each vertex, which can be costly in terms of performance, especially if there are many vertices.
+
+Finally, before a Renderable is submitted for that frame, a basic frustum culling step is performed. In simple terms, this means discarding those Renderables that are not within the camera's field of view, which reduces the amount of geometry sent to the GPU and improves performance. To do this, I use a property within the Mesh called AABB (Axis-Aligned Bounding Box), which we can imagine as a box that encloses all the geometry of the mesh and aligns with the world's axes. If that box does not intersect with the camera's frustum, then the Renderable is not drawn.
 
 ### Assets
 The asset system is responsible for loading and managing the game's resources, such as shaders, textures, models, and materials. It is important to have an efficient asset system to avoid loading the same resource multiple times and to facilitate resource management in the project.
@@ -98,4 +102,4 @@ commonly used for testing rendering techniques. Tested on an i7 laptop without a
 ![Sponza GLB](sponza_glb.png)
 *Sponza GLB, loads in ~3 seconds and uses less memory than the GLTF version*
 
-In the next post, we will start working on the voxel engine itself, so stay tuned!
+In the next post, I will start working on the voxel engine itself, so stay tuned!
