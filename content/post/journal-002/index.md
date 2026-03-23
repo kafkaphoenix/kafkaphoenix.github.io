@@ -30,15 +30,21 @@ The design goals of the engine are to be simple, efficient, and easy to understa
 
 ## Engine architecture
 
-The engine is divided into five modules: Core, Render, Assets, World, and Scene. Each module is responsible for a specific aspect of the engine's functionality, and they interact with each other to run the game.
+The engine is divided into four modules: Core, Render, Assets, and Scene. Each module is responsible for a specific aspect of the engine's functionality, and they interact with each other to run the game.
 
 ### Core
 
-This the central part of the engine. It is responsible for initializing and shutting down the different subsystems and maintaining the game loop. It also includes window management, input, events, and configuration.
+This the central part of the engine. It is responsible for initializing and shutting down the different subsystems and maintaining the game loop. It also includes window management, input, events, configuration, and level loading.
 
 > "A game loop runs continuously during gameplay. Each turn of the loop, also called a Frame, it processes user input without blocking, updates the game state, and renders the scene. It tracks the passage of time to control the rate of gameplay." [Game Loop](https://gameprogrammingpatterns.com/game-loop.html)
 
 The configuration file config.ini is read at startup to load various runtime options such as the application name, window resolution, mouse options, movement speed, or to change existing ones without recompiling the project.
+
+The level coordinates the scene and the renderer. It is responsible for updating the scene and submitting the Renderables to the renderer each frame. It also handles the camera and lighting information that is sent to the renderer.
+
+It also responsible of passing the configuration, the input and the events to the scene and its entities, so they can react accordingly. Alongside loading the scene using the SceneBuilder.
+
+> In a more complex engine, the level is just one state inside a bigger state machine that controls the whole game flow. It handles things like switching between the main menu, gameplay, pause, etc., making sure everything transitions smoothly and behaves consistently.
 
 Stats are collected each frame: triangles, draw calls, FPS, RAM usage, and are displayed in the window title for easy monitoring of performance.
 
@@ -56,31 +62,19 @@ Types of assets:
 - Model: Loads the model's geometry into a Mesh and the associated textures and shaders into a Material. Currently, it only supports static models, but it could be expanded to support animations, morph targets, etc.
 - Material: Maintains a reference to a shader and its associated textures, as well as the render state, such as whether it is transparent or not, or the color if there are no textures.
 
-### World
+### Scene
 
-This module contains the data structures and logic for the game world and its entities. It is responsible for creating and updating the entities in the world, as well as handling their interactions and behaviors.
+This module contains the data structures and logic for the scene and its entities. It is responsible for creating and updating the entities in the scene, as well as handling their interactions and behaviors.
 
-WorldLoader is responsible for loading the world data, for the example it just loads a simple scene with a sky, a sun and the sponza model.
-
-> In the case of a voxel game, the world would contain the voxels/cubes that are generated and destroyed dynamically as the player moves through the world.
+SceneBuilder is responsible for loading the scene data, for the example it just loads a simple scene with a sky, a sun and the sponza model.
 
 Camera is a component that defines the view and projection matrices for rendering the scene. It is attached to the player and follows its position and rotation.
 
-Player is responsible for controlling the camera and movement. For now, it has no physics or interaction logic, it just moves through the world and looks around without a visible 3D model.
+Player is responsible for controlling the camera and movement. For now, it has no physics or interaction logic, it just moves through the scene and looks around without a visible 3D model.
 
 Light is a component that defines the properties of a light source, such as its type (directional, point, spot), color, intensity, and direction. For the example, it only uses a directional light (the sun) and an ambient light.
 
 Renderables refers to the objects that can be rendered in the scene. They are created by combining a Mesh, a Material, and a Transform. The Renderable is what is submitted to the renderer each frame to be drawn on the screen.
-
-> A mesh can be shared by multiple Renderables, for example, a voxel cube can be used for all the voxels in the world, while the material can vary depending on the type of voxel (grass, dirt, stone, etc.) or even within the same type to add visual variety. It can also come from an imported 3D model, such as a tree or a rock.
-
-### Scene
-
-The scene coordinates the world and the renderer. It is responsible for updating the world and submitting the Renderables to the renderer each frame. It also handles the camera and lighting information that is sent to the renderer.
-
-It also responsible of passing the configuration, the input and the events to the world and its entities, so they can react accordingly. Alongside loading the world using the WorldLoader.
-
-> In a more complex engine, the scene could contain a state machine to manage different game states (main menu, gameplay, pause, etc.) and handle transitions between them.
 
 ### Render
 
@@ -89,7 +83,7 @@ The render manager is responsible for drawing the scene to the screen; otherwise
 > The goal of this post is not to explain in detail how OpenGL works; for that, I highly recommend [LearnOpenGL](https://learnopengl.com/). However, I want to give a general idea of how the rendering logic is structured, so I will explain it at a high level and leave that tutorial for those who want to delve into the details.
 
 The rendering workflow is as follows:
-- When the frame begins, the render manager is cleared and prepared to receive the Renderables for that frame. It calculates the frustrum planes based on the camera's view/projection matrix, which will be used for frustum culling later.
+- When the frame begins, the render manager is cleared and prepared to receive the Renderables for that frame. It calculates the frustum planes based on the camera's view/projection matrix, which will be used for frustum culling later.
 - During the update phase of the scene, the render manager receives the Renderables from the scene and prepares them for drawing sending them to the different renderers. For now, there is only one renderer, the model renderer, but in the future, there could be more specialized renderers (water, particles, voxels, etc.) that handle specific types of Renderables with different rendering techniques.
 - The model renderer submits the Renderables to the event queue, which will be processed at the end of the frame.
 - At the end of the frame, the render manager calls once again the renderers to process the event queue and draw the Renderables.
@@ -118,6 +112,6 @@ Let's wrap up with a screenshot of the engine rendering the "Sponza" model, a cl
 *Sponza GLTF, loads in ~5 seconds*
 
 ![Sponza GLB](sponza_glb.png)
-*Sponza GLB, loads in ~3 seconds and uses less memory than the GLTF version*
+*Sponza GLB, loads in ~3 seconds*
 
 In the next post, I will start working on the voxel engine itself, so stay tuned!
