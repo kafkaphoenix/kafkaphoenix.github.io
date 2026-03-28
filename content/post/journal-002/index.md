@@ -24,7 +24,7 @@ The engine itself can serve as a template for other projects and be modified as 
 
 ## Engine overview
 
-The engine is written in C++23, with OpenGL 4.6 for rendering and GLFW for window and input management. To handle dependencies and build the project, it uses [CMake](https://cmake.org/), [Makefile](https://www.gnu.org/software/make/manual/make.html), and [Vcpkg](https://vcpkg.io/en/).
+The engine is written in C++23, with OpenGL 4.6 for rendering and GLFW for window and input management. To handle dependencies and build the project, it uses [CMake](https://cmake.org/), [Makefile](https://www.gnu.org/software/make/manual/make.html), and [Vcpkg](https://vcpkg.io/en/). Linting is done with [Clang-Tidy](https://clang.llvm.org/extra/clang-tidy/) and formatting with [Clang-Format](https://clang.llvm.org/docs/ClangFormat.html).
 
 The design goals of the engine are to be simple, efficient, and easy to understand. I avoided including systems like audio, physics, debugging tools, scripting, UI, etc., as I wanted only the minimum to start with voxels and expand it as needed.
 
