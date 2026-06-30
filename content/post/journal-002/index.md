@@ -30,7 +30,7 @@ The design goals of the engine are to be simple, efficient, and easy to understa
 
 ## Engine architecture
 
-The engine is divided into four modules: Core, Render, Assets, and Scene. Each module is responsible for a specific aspect of the engine's functionality, and they interact with each other to run the game.
+The engine is divided into four modules: **Core**, **Render**, **Assets**, and **Scene**. Each module is responsible for a specific aspect of the engine's functionality, and they interact with each other to run the game.
 
 ### Core
 
@@ -38,15 +38,13 @@ This the central part of the engine. It is responsible for initializing and shut
 
 > "A game loop runs continuously during gameplay. Each turn of the loop, also called a Frame, it processes user input without blocking, updates the game state, and renders the scene. It tracks the passage of time to control the rate of gameplay." [Game Loop](https://gameprogrammingpatterns.com/game-loop.html)
 
-The configuration file config.ini is read at startup to load various runtime options such as the application name, window resolution, mouse options, movement speed, or to change existing ones without recompiling the project.
+The configuration file **config.ini** is read at startup to load various runtime options such as the application name, window resolution, mouse options, movement speed, or to change existing ones without recompiling the project.
 
-The level coordinates the scene and the renderer. It is responsible for updating the scene and submitting the Renderables to the renderer each frame. It also handles the camera and lighting information that is sent to the renderer.
-
-It also responsible of passing the configuration, the input and the events to the scene and its entities, so they can react accordingly. Alongside loading the scene using the SceneBuilder.
+**Level** coordinates the scene and the renderer. It is responsible for updating the scene and submitting the Renderables to the renderer each frame, handles the camera and lighting information that is sent to the renderer and is also responsible for passing the configuration, the input and the events to the scene and its entities, so they can react accordingly. Alongside loading the scene using the SceneBuilder.
 
 > In a more complex engine, the level is just one state inside a bigger state machine that controls the whole game flow. It handles things like switching between the main menu, gameplay, pause, etc., making sure everything transitions smoothly and behaves consistently.
 
-Stats are collected each frame: triangles, draw calls, FPS, RAM usage, and are displayed in the window title for easy monitoring of performance.
+**Stats** are collected each frame: triangles, draw calls, FPS, RAM usage, and are displayed in the window title for easy monitoring of performance.
 
 ### Assets
 
@@ -57,24 +55,24 @@ All assets derive from the base Asset interface, so new ones can be easily added
 When accessed, they are returned as an AssetHandle, which is a lightweight, type-safe reference. This way, the code that uses the assets does not have to worry about memory management or concrete types; it simply uses the handle to access them. If the asset is not loaded or changes, the asset manager automatically loads it and caches it for future references.
 
 Types of assets:
-- Shader: Loads the shader source code from a file, compiles it, and links it into a shader program that can be used to draw Renderables. Currently, it only supports simple shaders with vertex and fragment shaders, but it could be expanded to support geometry shaders, compute shaders, etc.
-- Texture: Creates an OpenGL texture ID and configures it with the appropriate parameters for use in the shader. Currently, it only supports 2D textures, but it could be expanded to support cubemaps, texture arrays, etc. It automatically generates mipmaps (to reduce aliasing and improve performance at a distance) and applies Anisotropic filtering (to improve texture quality at oblique angles,avoiding the [Moiré effect](https://en.wikipedia.org/wiki/Moir%C3%A9_pattern)).
-- Model: Loads the model's geometry into a Mesh and the associated textures and shaders into a Material. Currently, it only supports static models, but it could be expanded to support animations, morph targets, etc.
-- Material: Maintains a reference to a shader and its associated textures, as well as the render state, such as whether it is transparent or not, or the color if there are no textures.
+- **Shader**: Loads the shader source code from a file, compiles it, and links it into a shader program that can be used to draw Renderables. Currently, it only supports simple shaders with vertex and fragment shaders, but it could be expanded to support geometry shaders, compute shaders, etc.
+- **Texture**: Creates an OpenGL texture ID and configures it with the appropriate parameters for use in the shader. Currently, it only supports 2D textures, but it could be expanded to support cubemaps, texture arrays, etc. It automatically generates mipmaps (to reduce aliasing and improve performance at a distance) and applies Anisotropic filtering (to improve texture quality at oblique angles,avoiding the [Moiré effect](https://en.wikipedia.org/wiki/Moir%C3%A9_pattern)).
+- **Model**: Loads the model's geometry into a Mesh and the associated textures and shaders into a Material. Currently, it only supports static models, but it could be expanded to support animations.
+- **Material**: Maintains a reference to a shader and its associated textures, as well as the render state, such as whether it is transparent or not, or the color if there are no textures.
 
 ### Scene
 
 This module contains the data structures and logic for the scene and its entities. It is responsible for creating and updating the entities in the scene, as well as handling their interactions and behaviors.
 
-SceneBuilder is responsible for loading the scene data, for the example it just loads a simple scene with a sky, a sun and the sponza model.
+- **SceneBuilder** is responsible for loading the scene data, for the example it just loads a simple scene with a sky, a sun and the sponza model.
 
-Camera is a component that defines the view and projection matrices for rendering the scene. It is attached to the player and follows its position and rotation.
+- **Camera** is a component that defines the view and projection matrices for rendering the scene. It is attached to the player and follows its position and rotation.
 
-Player is responsible for controlling the camera and movement. For now, it has no physics or interaction logic, it just moves through the scene and looks around without a visible 3D model.
+- **Player** is responsible for controlling the camera and movement. For now, it has no physics or interaction logic, it just moves through the scene and looks around without a visible 3D model.
 
-Light is a component that defines the properties of a light source, such as its type (directional, point, spot), color, intensity, and direction. For the example, it only uses a directional light (the sun) and an ambient light.
+- **Light** is a component that defines the properties of a light source, such as its type (directional, point, spot), color, intensity, and direction. For the example, it only uses a directional light (the sun) and an ambient light.
 
-Renderables refers to the objects that can be rendered in the scene. They are created by combining a Mesh, a Material, and a Transform. The Renderable is what is submitted to the renderer each frame to be drawn on the screen.
+- **Renderables** refers to the objects that can be rendered in the scene. They are created by combining a Mesh, a Material, and a Transform. The Renderable is what is submitted to the renderer each frame to be drawn on the screen.
 
 ### Render
 
@@ -106,12 +104,19 @@ The model renderer also has a Frame UBO (Uniform Buffer Object) to send common d
 ## Conclusion
 So well, that's all for today's post! I hope this gives you a good overview of the engine's architecture and design goals. Feel free to explore the [code repository](https://github.com/kafkaphoenix/simpleengine) and ask any questions you may have.
 
-Let's wrap up with a screenshot of the engine rendering the "Sponza" model, a classic 3D scene commonly used for testing rendering techniques. Tested on an i7 laptop without a dedicated GPU.
+Let's wrap up with a screenshot of the engine rendering the **Sponza** model, a classic 3D scene commonly used for testing rendering techniques. Tested on an i7 laptop without a dedicated GPU.
 
-![Sponza GLTF](sponza_gltf.png)
-*Sponza GLTF, loads in ~5 seconds*
-
-![Sponza GLB](sponza_glb.png)
-*Sponza GLB, loads in ~3 seconds*
+<table>
+  <tr>
+    <td align="center">
+      <img src="sponza_gltf.png" width="100%"><br>
+      <em>Sponza GLTF, loads in ~5 seconds</em>
+    </td>
+    <td align="center">
+      <img src="sponza_glb.png" width="100%"><br>
+      <em>Sponza GLB, loads in ~3 seconds</em>
+    </td>
+  </tr>
+</table>
 
 In the next post, I will start working on the voxel engine itself, so stay tuned!
