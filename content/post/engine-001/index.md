@@ -12,36 +12,42 @@ image: sponza.png
 
 ## Preface
 
-After the last post, I finally started working on the voxel logic itself (which will be covered in the next post!). However, while doing so, I realized how coupled some parts of the engine were, as well as the limitations I would likely face in the future.
+After the last post, I finally started working on the voxel logic itself (which will be covered in the next post!). While doing so, I realized how tightly coupled some parts of the engine were, along with the limitations I would likely run into as the project grew.
 
-At the same time, I fell into the usual rabbit hole of feature creep and refactoring, improving things along the way. Initially, it was just small tweaks, which I simply updated in the previous post. But after a while, I realized that the larger changes deserved their own update, so I think it is worth covering them here.
+At the same time, I inevitably fell into the rabbit hole of feature creep and refactoring, improving the engine along the way. At first, these were just small tweaks that I quietly folded into the previous post. Over time, however, the changes became much more substantial and deserved an update of their own. So, in this post, I'll go over those improvements.
 
-## Engine structural changes
+## What's new in the engine
 
-In this post, I won’t go into small refactors, fixes, or minor improvements. While the devil is in the details, both the engine and voxel system are still in early development and are likely to change significantly in the future, so those types of changes are to be expected. With that in mind, let's go folder by folder through the engine and see what has changed.
+I won't cover every small refactor, bug fix, or minor improvement. While the devil is in the details, both the engine and the voxel system are still in their early stages and will likely evolve significantly over time, so these kinds of changes are to be expected.
+
+Instead, let's go through the engine folder by folder and take a look at the structural changes and new features that were added along the way.
 
 ### Assets
 
 #### New ownership model
 
-Initially, the asset manager stored every asset using **std::shared_ptr**. Since assets are owned exclusively by the asset manager and accessed elsewhere through lightweight AssetHandles rather than shared ownership, I replaced **std::shared_ptr** with **std::unique_ptr**. This better expresses the ownership model, removes unnecessary reference counting overhead, and improves performance.
+Initially, the asset manager stored every asset using **std::shared_ptr**. Since assets are owned exclusively by the asset manager and referenced elsewhere through lightweight AssetHandles rather than shared ownership, I replaced **std::shared_ptr** with **std::unique_ptr**. This better reflects the ownership model, eliminates unnecessary reference counting overhead, and slightly improves performance.
 
 #### Model loading
 
 A few improvements were also made to make model loading more robust and consistent:
 
-- **Default asset values.** Missing or incomplete resources now fall back to sensible defaults. For example, missing textures are replaced with a checkerboard texture and missing materials use a default material, allowing models to load gracefully instead of failing at runtime.
-- **MikkTSpace tangent generation.** Tangent space is generated automatically whenever a glTF asset does not provide tangents, ensuring normal maps behave consistently across different tools while allowing assets without precomputed tangents to render correctly.
+- **Default asset values.** Missing or incomplete resources now fall back to explicit default values. For example, missing textures are replaced with a **checkerboard texture**, while missing materials use a **default material**. This allows models to load gracefully instead of failing at runtime.
+- **MikkTSpace tangent generation.** Tangent space is now generated automatically whenever a glTF asset does not provide tangents. This ensures normal maps behave consistently across different tools and allows assets without precomputed tangents to render correctly.
 
     ![Missing textures](missing_textures.png)
 
 #### Animated models
 
-Model loading was extended to support animated glTF assets, in addition to static geometry, materials, and textures.
+Model loading was extended to support **animated glTF assets**, in addition to static geometry, materials, and textures.
 
-When a glTF file contains a **skeleton**, the engine builds a bone hierarchy stored as a flat structure, where each bone stores its parent index, inverse bind matrix, and rest pose. **Animation clips** are loaded as collections of channels, where each channel contains translation, rotation, and scale keyframes for a single bone.
+Animation data in a glTF file is organized into three main elements:
 
-This allows animations to be evaluated at runtime by the **Animator**, which reconstructs poses from the imported data.
+- The **skeleton (skin)** defines a hierarchy of bones (nodes), along with inverse bind matrices used for skinning.
+- **Animation clips** represent named animations (e.g. "walk", "run"), each grouping multiple animation channels.
+- **Animation channels** store keyframe data over time, typically for translation, rotation, and scale of individual nodes (bones).
+
+On import, the engine builds its own internal representation of this data. This allows animations to be evaluated at runtime by the **Animator**, which reconstructs poses from the imported keyframes.
 
 > For a deeper explanation of skeletal animation, I recommend reading [this article](https://learnopengl.com/Guest-Articles/2020/Skeletal-Animation).
 
@@ -49,11 +55,11 @@ This allows animations to be evaluated at runtime by the **Animator**, which rec
 
 #### Cubemaps support
 
-I also implemented cubemap support from scratch. In my previous engine, textures and cubemaps were unified under a single texture asset, which led to a lot of conditional logic and made the system harder to maintain.
+I also implemented cubemap support from scratch. In my previous engine, textures and cubemaps were unified under a single texture asset, which introduced a lot of conditional logic and made the system harder to maintain.
 
-A **Cubemap** asset now exclusively handles loading the six faces, validating them, and creating the GPU cubemap texture.
+A **Cubemap asset** is responsible for loading the six faces, validating them, and creating the GPU cubemap texture.
 
-Rendering is handled independently by **SkyboxRenderer**, which draws a unit cube directly on the GPU (no imported mesh or CPU geometry), removes translation from the view matrix so the skybox stays centered on the camera, and samples the cubemap in the fragment shader to render an infinitely distant environment.
+Rendering is handled independently by **SkyboxRenderer**, which draws a unit cube directly on the GPU (no imported mesh or CPU geometry), removes translation from the view matrix so the skybox stays centered on the camera, and samples the cubemap in the fragment shader to simulate an infinitely distant environment.
 
 ![Cubemap](cubemap.png)
 
@@ -61,7 +67,9 @@ Rendering is handled independently by **SkyboxRenderer**, which draws a unit cub
 
 #### New config file format
 
-The most significant change in this folder was changing config file parsing from INI to TOML, thus switching from [simpleini](https://github.com/brofield/simpleini) to [toml++](https://github.com/marzer/tomlplusplus). I found that with the first I was maintaining a lot of code just to parse the INI file. After looking at toml++, I found it to be a more modern and flexible format, and its API just clicked with me more.
+The config file parsing was changed from **INI** to **TOML**, thus switching from [simpleini](https://github.com/brofield/simpleini) to [toml++](https://github.com/marzer/tomlplusplus). 
+
+I found that with the first I was maintaining a lot of code just to parse the **INI** file. After looking at **toml++**, I found it to be a more modern and flexible format, and its API just clicked with me more.
 
 #### New update loop
 
@@ -75,38 +83,38 @@ I moved away from updating everything directly in the application loop. The appl
 
 #### Decoupling scene from renderer
 
-One of the important architectural improvements in the engine was decoupling the scene from the renderer by introducing a transformation layer. Scene objects are no longer directly consumed by rendering systems; instead, they are converted into rendering-specific data structures that describe what should be rendered, not how it should be rendered.
+An important architectural improvement in the engine was decoupling the scene from the renderer by introducing a transformation layer. Scene objects are no longer directly consumed by rendering systems; instead, they are converted into rendering-specific data structures that describe what should be rendered, not how it should be rendered.
 
 #### Rendering pipeline refactor
 
-Rendering is the part of the engine that has changed the most (and could potentially be separated into its own module). The rendering pipeline underwent a significant refactor, particularly around transparency handling and the render queue system. This redesign was driven by both the integration of animation and research into more efficient and scalable transparency techniques.
+The rendering pipeline underwent a significant refactor, particularly around transparency handling and the render queue system. This redesign was driven by both the integration of animation as well as research into more scalable transparency techniques.
 
-Transparency is explicitly defined in the material system and influences how geometry is classified during submission. Each renderable is assigned to a specific path depending on its state, including whether it is opaque, animated, or transparent, and in the latter case whether it uses **CPU sorting** or **OIT**.
+Geometry is first classified during submission based on its material and animation state. Each renderable is assigned to one of four internal paths: **static opaque**, **opaque animated**, **static transparent**, or **transparent animated**.
 
-Sorted transparency uses a CPU-based depth sorting approach where objects are rendered back to front. It is efficient for simple cases but becomes expensive with large numbers of transparent objects and does not handle intersecting geometry correctly.
-
-**OIT (Order Independent Transparency)** is used for particles and other complex transparent effects. It avoids sorting by using accumulation and revealage buffers in a dedicated framebuffer setup, trading CPU cost for a controlled GPU cost.
+Transparent geometry is further split based on the material’s transparency mode. **CPU-sorted transparency** renders objects back-to-front after a depth sort, which works well for simple scenes but becomes expensive with many transparent objects and cannot correctly handle intersecting geometry. **Order Independent Transparency (OIT)** instead uses accumulation and revealage buffers, avoiding sorting at the cost of a more complex GPU pass.
 
 > For more information on **OIT**, I recommend reading [this article](https://learnopengl.com/Guest-Articles/2020/OIT/Introduction).
 
-The render queue separates static opaque batches, animated geometry, and transparent submissions into distinct internal structures. Transparent geometry is further split into sorted and OIT paths at submission time, while animated geometry bypasses instancing and is processed per draw call. This structure allows the renderer to maintain batching efficiency for static geometry while supporting more complex rendering cases.
+**Animated geometry** bypasses batching and is always submitted per-draw-call, but follows the same transparent or opaque classification depending on its material state.
+
+The render queue reflects this structure directly, separating **static opaque batches**, **opaque animated draws**, and two transparent pipelines (**sorted** and **OIT**). This allows static geometry to remain highly batchable while still supporting animated and transparent rendering paths where needed.
 
 #### Framebuffer and post-processing
 
-I also introduced framebuffer support into the engine, enabling more advanced rendering techniques such as OIT accumulation, MSAA, and post-processing effects.
+I also introduced framebuffer support into the engine, enabling more advanced rendering techniques such as **OIT accumulation**, **MSAA**, and **post-processing effects**.
 
 ![Edge detection post-processing effect](edge_detection.png)
 
-In my previous engine, full-screen post-processing effects were implemented using a screen-aligned quad. Here, I switched to using a full-screen triangle, which is a more efficient and modern approach in OpenGL.
+In my previous engine, full-screen post-processing effects were implemented using a screen-aligned quad. Here, I switched to using a full-screen triangle, a more efficient and modern approach in OpenGL.
 
-This approach avoids the need for vertex buffers for screen geometry and guarantees full-screen coverage without artifacts caused by diagonal edges in a quad.
+This removes the need for vertex buffers dedicated to screen geometry and guarantees full-screen coverage without the edge artifacts that can occur with quad-based rendering.
 
 > A detailed discussion of the full-screen triangle technique can be found here:
 https://stackoverflow.com/questions/2588875/whats-the-best-way-to-draw-a-fullscreen-quad-in-opengl-3-2/51625078
 and an in-depth performance analysis here:
 https://wallisc.github.io/rendering/2021/04/18/Fullscreen-Pass.html
 
-> A few debugging views were also added to visualize framebuffer contents, which is useful for debugging post-processing effects and rendering issues.
+> A few debugging views were also added to visualize framebuffer contents directly, helping to inspect post-processing passes and debug rendering artifacts.
 
 <table>
   <tr>
@@ -122,7 +130,7 @@ https://wallisc.github.io/rendering/2021/04/18/Fullscreen-Pass.html
   <tr>
     <td align="center">
       <img src="ndotl.png" width="91%"><br>
-      <em>NDOTL(normal dot light) view</em>
+      <em>NDOTL (normal dot light) view</em>
     </td>
     <td align="center">
       <img src="linear_depth.png" width="100%"><br>
@@ -133,42 +141,44 @@ https://wallisc.github.io/rendering/2021/04/18/Fullscreen-Pass.html
 
 #### Lighting system
 
-The lighting shader was refactored to support a variable number of lights instead of a fixed limit, improving scalability with scene complexity. I also introduced a hybrid approach combining Blinn-Phong and PBR-style metallic-roughness inputs.
+The lighting shader was refactored to support a variable number of lights instead of a fixed limit, improving scalability with scene complexity. I also introduced a hybrid approach combining **Blinn-Phong** with **PBR-style metallic-roughness inputs**.
 
-> The system is still a work in progress, and I plan to further improve it in the future, potentially exploring more scalable approaches such as deferred rendering for handling scenes with many lights more efficiently (likely for the engine side, while the voxel renderer may explore alternative approaches such as flood lighting and other specialized techniques).
+> This system is still a work in progress, and I plan to continue refining it in the future. In particular, I may explore more scalable approaches such as deferred rendering for scenes with many lights. For the voxel renderer, alternative strategies such as **flood lighting** or other specialized techniques may be more appropriate.
 
 ### Scene
 
 #### First-person camera and Visibility Mask
 
-The initial camera implementation was changed to support first-person movement by using a visibility mask to filter out the player mesh. The idea of using masks/layers to filter objects in the scene is something I learned from Godot, and I found it to be very useful.
+The initial camera implementation was changed to support first-person movement by using a **visibility mask** to exclude the player mesh from rendering. The idea of using masks/layers to filter objects in a scene is something I borrowed from Godot, and I found it to be a very flexible approach.
 
-It also generalizes naturally to other cases, such as excluding UI or particles from specific render passes, or filtering objects for effects like water reflections and shadow maps.
+This mechanism also generalizes well beyond the player case. It can be used to exclude UI or particles from specific render passes, or to filter objects for effects such as water reflections and shadow maps.
 
-I also improved the third-person camera to behave more like an orbit camera instead of using a fixed offset from the player, which provides more flexible control over camera movement.
+I also improved the third-person camera, shifting it from a fixed offset approach to an orbit-style camera. This provides more flexible and controllable camera movement around the player.
 
-> The third-person camera does not currently prevent clipping through walls, as it does not include collision handling. A physics-aware camera will likely be added later when more complex environments such as caves are introduced.
+> The third-person camera does not currently handle collision detection, so it can still clip through walls. A physics-aware camera will likely be added later, especially once more complex environments such as caves are introduced.
 
 #### Animation system
 
-At runtime, each animated entity owns an **Animator** and an **AnimationController**. The **AnimationController** is a small locomotion state machine that selects which animation should play (for example idle, walk, or run), while the **Animator** performs the actual animation playback.
+At runtime, each animated entity owns an **Animator** and an **AnimationController**. The **AnimationController** is a small locomotion state machine that selects which animation should play (e.g., idle, walk, or run), while the **Animator** handles the actual animation evaluation and pose reconstruction.
 
-During each update, the **Animator** advances the current animation time, samples the keyframes for each animated bone, optionally blends between two poses during transitions, and builds the final bone palette. These bone matrices are then uploaded to the GPU, where the vertex shader performs skinning to produce the final animated mesh.
+During each update, the **Animator** advances the animation time, samples keyframes for each animated bone, and optionally blends between two poses during transitions. From this, it builds the final bone palette, which is then uploaded to the GPU. The vertex shader performs skinning using these matrices to produce the final animated mesh.
 
 ![Animated fox](fox.gif)
 
 #### Root motion
 
-Root motion was added as an optional movement source for animated entities, allowing movement to be driven either by the controller or by animation data, depending on the use case.
+**Root motion** was added as an optional movement source for animated entities, allowing movement to be driven either by normal input or by animation data, depending on the use case.
 
 ## Conclusion
 
-After reading (*hopefully*) all of this, you might be wondering why I’ve been implementing ideas from the README and previous posts, since I’ve admittedly drifted a little from the main objective of developing a voxel world.
+After reading (*hopefully*) all of this, you might be wondering why I’ve been implementing ideas from the README and previous posts, since I’ve admittedly drifted a bit from the main objective of developing a voxel world.
 
-When working on engine features that are not strictly voxel-related (and will be covered in future posts), some are generic enough to belong in most engines, whether voxel-based or traditional 2D/3D. Systems such as audio, UI, and particles fall into this category, and I will end up implementing them at some point.
+When working on engine features that are *not strictly voxel-related* (and will be covered in future posts), some are generic enough to belong in most engines, whether voxel-based or traditional 2D/3D. Systems such as **audio**, **UI**, and **particles** fall into this category, and will be implemented at some point regardless.
 
-Others, such as lighting, as mentioned earlier, tend to be more specific to voxel engines and often require completely different approaches. For example, instead of cubemaps, voxel engines often rely on procedural sky systems.
+As mentioned earlier, others such as **lighting** are more specific to voxel engines and often require completely different approaches.
 
-Animation and post-processing sit somewhere in between. While not strictly voxel-specific, they were added earlier to support longer-term goals such as animated world elements and a flexible rendering pipeline for future features like shadows and advanced effects.
+Similarly, **sky** is not always based on **cubemaps**, and can instead use **procedural** or **gradient-based** approaches, which I plan to explore in the voxel engine.
 
-Let’s close this post here. In the next one, I will shift focus back to the voxel engine and the progress made so far, returning to the main objective of the blog.
+Finally, systems such as **animation** and **post-processing** sit somewhere in between. While not *voxel-specific*, they were added earlier to support longer-term goals, such as animated world elements and a more flexible rendering pipeline for future features like shadows and advanced effects.
+
+Let’s close this post here. In the next one, I'll shift focus back to the voxel engine itself and the progress made so far, returning to the main objective of this blog.
