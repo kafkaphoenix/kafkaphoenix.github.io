@@ -165,9 +165,14 @@ During each update, the **Animator** advances the animation time, samples keyfra
 
 ![Animated fox](fox.gif)
 
-#### Root motion
+### Player class evolution
 
-**Root motion** was added as an optional movement source for animated entities, allowing movement to be driven either by normal input or by animation data, depending on the use case.
+The **Player** is no longer just a camera controller with basic movement. It has evolved into a central gameplay object handling input, movement, animation, and camera state. This includes first- and third-person modes, a visible animated body instance, and optional root motion, where movement can be driven either by input or directly by animation data.
+
+To support this, its responsibilities were split into dedicated systems:
+**CharacterController:** handles movement and facing logic
+**AnimationController:** selects locomotion animations and manages animation state
+**CameraController:** manages first and third-person camera behavior independently from the Player
 
 ## Conclusion
 
