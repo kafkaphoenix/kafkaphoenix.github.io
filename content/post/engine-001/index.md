@@ -44,7 +44,7 @@ Model loading was extended to support **animated glTF assets**, in addition to s
 Animation data in a glTF file is organized into three main elements:
 
 - The **skeleton (skin)** defines a hierarchy of bones (nodes), along with inverse bind matrices used for skinning.
-- **Animation clips** represent named animations (e.g. "walk", "run"), each grouping multiple animation channels.
+- **Animation clips** represent named animations (e.g. idle, walk, run), each grouping multiple animation channels.
 - **Animation channels** store keyframe data over time, typically for translation, rotation, and scale of individual nodes (bones).
 
 On import, the engine builds its own internal representation of this data. This allows animations to be evaluated at runtime by the **Animator**, which reconstructs poses from the imported keyframes.
@@ -109,10 +109,7 @@ In my previous engine, full-screen post-processing effects were implemented usin
 
 This removes the need for vertex buffers dedicated to screen geometry and guarantees full-screen coverage without the edge artifacts that can occur with quad-based rendering.
 
-> A detailed discussion of the full-screen triangle technique can be found here:
-https://stackoverflow.com/questions/2588875/whats-the-best-way-to-draw-a-fullscreen-quad-in-opengl-3-2/51625078
-and an in-depth performance analysis here:
-https://wallisc.github.io/rendering/2021/04/18/Fullscreen-Pass.html
+> A detailed discussion of the full-screen triangle technique can be found [here](https://stackoverflow.com/questions/2588875/whats-the-best-way-to-draw-a-fullscreen-quad-in-opengl-3-2/51625078) and an in-depth performance analysis [here](https://wallisc.github.io/rendering/2021/04/18/Fullscreen-Pass.html).
 
 > A few debugging views were also added to visualize framebuffer contents directly, helping to inspect post-processing passes and debug rendering artifacts.
 
