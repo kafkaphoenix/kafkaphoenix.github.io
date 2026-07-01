@@ -91,7 +91,7 @@ The rendering pipeline underwent a significant refactor, particularly around tra
 
 Geometry is first classified during submission based on its material and animation state. Each renderable is assigned to one of four internal paths: **static opaque**, **opaque animated**, **static transparent**, or **transparent animated**.
 
-Transparent geometry is further split based on the material’s transparency mode. **CPU-sorted transparency** renders objects back-to-front after a depth sort, which works well for simple scenes but becomes expensive with many transparent objects and cannot correctly handle intersecting geometry. **Order Independent Transparency (OIT)** instead uses accumulation and revealage buffers, avoiding sorting at the cost of a more complex GPU pass.
+Transparent geometry is further split based on the material's transparency mode. **CPU-sorted transparency** renders objects back-to-front after a depth sort, which works well for simple scenes but becomes expensive with many transparent objects and cannot correctly handle intersecting geometry. **Order Independent Transparency (OIT)** instead uses accumulation and revealage buffers, avoiding sorting at the cost of a more complex GPU pass.
 
 > For more information on **OIT**, I recommend reading [this article](https://learnopengl.com/Guest-Articles/2020/OIT/Introduction).
 
@@ -176,7 +176,7 @@ To support this, its responsibilities were split into dedicated systems:
 
 ## Conclusion
 
-After reading (*hopefully*) all of this, you might be wondering why I’ve been implementing ideas from the README and previous posts, since I’ve admittedly drifted a bit from the main objective of developing a voxel world.
+After reading (*hopefully*) all of this, you might be wondering why I've been implementing ideas from the README and previous posts, since I've admittedly drifted a bit from the main objective of developing a voxel world.
 
 When working on engine features that are *not strictly voxel-related* (and will be covered in future posts), some are generic enough to belong in most engines, whether voxel-based or traditional 2D/3D. Systems such as **audio**, **UI**, and **particles** fall into this category, and will be implemented at some point regardless.
 
@@ -186,4 +186,4 @@ Similarly, **sky** is not always based on **cubemaps**, and can instead use **pr
 
 Finally, systems such as **animation** and **post-processing** sit somewhere in between. While not *voxel-specific*, they were added earlier to support longer-term goals, such as animated world elements and a more flexible rendering pipeline for future features like shadows and advanced effects.
 
-Let’s close this post here. In the next one, I'll shift focus back to the voxel engine itself and the progress made so far, returning to the main objective of this blog.
+Let's close this post here. In the next one, I'll shift focus back to the voxel engine itself and the progress made so far, returning to the main objective of this blog.
