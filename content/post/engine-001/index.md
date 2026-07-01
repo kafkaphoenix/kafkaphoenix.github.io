@@ -165,7 +165,7 @@ During each update, the **Animator** advances the animation time, samples keyfra
 
 ![Animated fox](fox.gif)
 
-### Player class evolution
+#### Player class evolution
 
 The **Player** is no longer just a camera controller with basic movement. It has evolved into a central gameplay object handling input, movement, animation, and camera state. This includes first- and third-person modes, a visible animated body instance, and optional root motion, where movement can be driven either by input or directly by animation data.
 
