@@ -26,7 +26,7 @@ Instead, let's go through the engine folder by folder and take a look at the str
 
 #### New ownership model
 
-Initially, the asset manager stored every asset using **std::shared_ptr**. Since assets are owned exclusively by the asset manager and referenced elsewhere through lightweight AssetHandles rather than shared ownership, I replaced **std::shared_ptr** with **std::unique_ptr**. This better reflects the ownership model, eliminates unnecessary reference counting overhead, and slightly improves performance.
+Initially, the asset manager stored every asset using `std::shared_ptr`. Since assets are owned exclusively by the asset manager and referenced elsewhere through lightweight AssetHandles rather than shared ownership, I replaced `std::shared_ptr` with `std::unique_ptr`. This better reflects the ownership model, eliminates unnecessary reference counting overhead, and slightly improves performance.
 
 #### Model loading
 
@@ -146,13 +146,13 @@ The lighting shader was refactored to support a variable number of lights instea
 
 #### First-person camera and Visibility Mask
 
-The initial camera implementation was changed to support first-person movement by using a **visibility mask** to exclude the player mesh from rendering. The idea of using masks/layers to filter objects in a scene is something I borrowed from Godot, and I found it to be a very flexible approach.
+The initial camera implementation was changed to support **first-person movement** by using a **visibility mask** to exclude the player mesh from rendering. The idea of using masks/layers to filter objects in a scene is something I borrowed from Godot, and I found it to be a very flexible approach.
 
 This mechanism also generalizes well beyond the player case. It can be used to exclude UI or particles from specific render passes, or to filter objects for effects such as water reflections and shadow maps.
 
-I also improved the third-person camera, shifting it from a fixed offset approach to an orbit-style camera. This provides more flexible and controllable camera movement around the player.
+I also improved the **third-person camera**, shifting it from a fixed offset approach to an orbit-style camera. This provides more flexible and controllable camera movement around the player.
 
-> The third-person camera does not currently handle collision detection, so it can still clip through walls. A physics-aware camera will likely be added later, especially once more complex environments such as caves are introduced.
+> The **third-person camera** does not currently handle collision detection, so it can still clip through walls. A physics-aware camera will likely be added later, especially once more complex environments such as caves are introduced.
 
 #### Animation system
 
@@ -164,7 +164,7 @@ During each update, the **Animator** advances the animation time, samples keyfra
 
 #### Player class evolution
 
-The **Player** is no longer just a camera controller with basic movement. It has evolved into a central gameplay object handling input, movement, animation, and camera state. This includes first- and third-person modes, a visible animated body instance, and optional root motion, where movement can be driven either by input or directly by animation data.
+The **Player** is no longer just a camera controller with basic movement. It has evolved into a central gameplay object handling input, movement, animation, and camera state. This includes **first- and third-person modes**, a visible animated body instance, and optional root motion, where movement can be driven either by input or directly by animation data.
 
 To support this, its responsibilities were split into dedicated systems:
 **CharacterController:** handles movement and facing logic
