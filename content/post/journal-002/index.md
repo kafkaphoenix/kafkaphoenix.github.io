@@ -24,7 +24,7 @@ The engine itself can serve as a template for other projects and be modified as 
 
 ## Engine overview
 
-The engine is written in C++23, with OpenGL 4.6 for rendering and GLFW for window and input management. To handle dependencies and build the project, it uses [CMake](https://cmake.org/), [Makefile](https://www.gnu.org/software/make/manual/make.html), and [Vcpkg](https://vcpkg.io/en/). Linting is done with [Clang-Tidy](https://clang.llvm.org/extra/clang-tidy/) and formatting with [Clang-Format](https://clang.llvm.org/docs/ClangFormat.html).
+The engine is written in **C++23**, with **OpenGL 4.6** for rendering and **GLFW** for window and input management. To handle dependencies and build the project, it uses [CMake](https://cmake.org/), [Makefile](https://www.gnu.org/software/make/manual/make.html), and [Vcpkg](https://vcpkg.io/en/). Linting is done with [Clang-Tidy](https://clang.llvm.org/extra/clang-tidy/) and formatting with [Clang-Format](https://clang.llvm.org/docs/ClangFormat.html).
 
 The design goals of the engine are to be simple, efficient, and easy to understand. I avoided including systems like audio, physics, debugging tools, scripting, UI, etc., as I wanted only the minimum to start with voxels and expand it as needed.
 
@@ -44,52 +44,52 @@ The configuration file **config.ini** is read at startup to load various runtime
 
 > In a more complex engine, the level is just one state inside a bigger state machine that controls the whole game flow. It handles things like switching between the main menu, gameplay, pause, etc., making sure everything transitions smoothly and behaves consistently.
 
-**Stats** are collected each frame: triangles, draw calls, FPS, RAM usage, and are displayed in the window title for easy monitoring of performance.
+**Stats** are collected every frame: triangles, draw calls, FPS, RAM usage. They are displayed in the window title for easy monitoring of performance.
 
 ### Assets
 
-The asset system is responsible for loading and managing the game's resources, such as shaders, textures, models, and materials. Having one is important in order to avoid loading the same resources multiple times and to facilitate their management (loading and unloading) in the lifecycle of the project.
+The asset system is responsible for loading and managing the game's resources. Its primary purpose is to ensure that assets are loaded only once and shared across the engine, while also simplifying their lifecycle management, including loading, unloading, and reuse.
 
-All assets derive from the base Asset interface, so new ones can be easily added. They are stored in an unordered_map using a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) as the key and a shared_ptr to the asset as the value. 
+All assets derive from the base **Asset** interface, making the system easily extensible. Assets  are stored in an `unordered_map`, using a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) as the key and a `shared_ptr` to the corresponding asset as the value.
 
-When accessed, they are returned as an AssetHandle, which is a lightweight, type-safe reference. This way, the code that uses the assets does not have to worry about memory management or concrete types; it simply uses the handle to access them. If the asset is not loaded or changes, the asset manager automatically loads it and caches it for future references.
+Assets are accessed through an **AssetHandle**, a lightweight, type-safe reference. This abstracts away memory management and the underlying asset type from the rest of the engine. When an asset is requested, the asset manager loads it on demand if necessary, caches it, and returns a handle to the cached instance so subsequent requests reuse the same resource.
 
 Types of assets:
-- **Shader**: Loads the shader source code from a file, compiles it, and links it into a shader program that can be used to draw Renderables. Currently, it only supports simple shaders with vertex and fragment shaders, but it could be expanded to support geometry shaders, compute shaders, etc.
-- **Texture**: Creates an OpenGL texture ID and configures it with the appropriate parameters for use in the shader. Currently, it only supports 2D textures, but it could be expanded to support cubemaps, texture arrays, etc. It automatically generates mipmaps (to reduce aliasing and improve performance at a distance) and applies Anisotropic filtering (to improve texture quality at oblique angles,avoiding the [Moiré effect](https://en.wikipedia.org/wiki/Moir%C3%A9_pattern)).
-- **Model**: Loads the model's geometry into a Mesh and the associated textures and shaders into a Material. Currently, it only supports static models, but it could be expanded to support animations.
-- **Material**: Maintains a reference to a shader and its associated textures, as well as the render state, such as whether it is transparent or not, or the color if there are no textures.
+- **Shader**: Loads the shader source code from a file, compiles it, and links it into a shader program that can be used to draw **Renderables**. Currently, it only supports simple shaders with **vertex** and **fragment** shaders, but it could be expanded to support geometry shaders, compute shaders, etc.
+- **Texture**: Creates an OpenGL texture ID and configures it with the appropriate parameters for use in the shader. Currently, it only supports 2D textures, but it could be expanded to support cubemaps, texture arrays, etc. It automatically generates mipmaps (to reduce aliasing and improve performance at a distance) and applies **Anisotropic filtering** (to improve texture quality at oblique angles, avoiding the [Moiré effect](https://en.wikipedia.org/wiki/Moir%C3%A9_pattern)).
+- **Model**: Loads the model's geometry into a **Mesh** and the associated textures and shaders into a **Material**. Currently, it only supports static models, but it could be expanded to support animations.
+- **Material**: Maintains a reference to a **Shader** and its associated textures, as well as the render state, such as whether it is transparent or not, or the color if there are no textures.
 
 ### Scene
 
-This module contains the data structures and logic for the scene and its entities. It is responsible for creating and updating the entities in the scene, as well as handling their interactions and behaviors.
+This module contains the data structures and logic that define the scene and its entities. It is responsible for creating, updating, and managing the entities that make up the scene.
 
-- **SceneBuilder** is responsible for loading the scene data, for the example it just loads a simple scene with a sky, a sun and the sponza model.
+- **SceneBuilder** is responsible for creating and loading the scene. For this example, it simply creates a scene containing a skybox, a directional light (the sun), and the Sponza model.
 
-- **Camera** is a component that defines the view and projection matrices for rendering the scene. It is attached to the player and follows its position and rotation.
+- **Camera** defines the view and projection matrices used to render the scene. It is attached to the player and follows its position and rotation.
 
-- **Player** is responsible for controlling the camera and movement. For now, it has no physics or interaction logic, it just moves through the scene and looks around without a visible 3D model.
+- **Player** is responsible for controlling the camera and handling player input. For now, it has no physics or interaction logic. It simply allows free movement through the scene, with no visible 3D model.
 
-- **Light** is a component that defines the properties of a light source, such as its type (directional, point, spot), color, intensity, and direction. For the example, it only uses a directional light (the sun) and an ambient light.
+- **Light** defines the properties of a light source, such as its type (**directional**, **point**, or **spot**), color, intensity, and direction. In this example, the scene uses only a directional light (the sun) and ambient lighting.
 
-- **Renderables** refers to the objects that can be rendered in the scene. They are created by combining a Mesh, a Material, and a Transform. The Renderable is what is submitted to the renderer each frame to be drawn on the screen.
+- **Renderables** represents any object that can be drawn in the scene. A renderable combines a **Mesh**, a **Material**, and a **Transform**, and is submitted to the renderer every frame for rendering.
 
 ### Render
 
-The render manager is responsible for drawing the scene to the screen; otherwise, we would just see an empty window.
+The **Render Manager** is responsible for drawing the scene to the screen. Without it, all you would see is an empty window.
 
 > The goal of this post is not to explain in detail how OpenGL works; for that, I highly recommend [LearnOpenGL](https://learnopengl.com/). However, I want to give a general idea of how the rendering logic is structured, so I will explain it at a high level and leave that tutorial for those who want to delve into the details.
 
 The rendering workflow is as follows:
-- When the frame begins, the render manager is cleared and prepared to receive the Renderables for that frame. It calculates the frustum planes based on the camera's view/projection matrix, which will be used for frustum culling later.
-- During the update phase of the scene, the render manager receives the Renderables from the scene and prepares them for drawing sending them to the different renderers. For now, there is only one renderer, the model renderer, but in the future, there could be more specialized renderers (water, particles, voxels, etc.) that handle specific types of Renderables with different rendering techniques.
-- The model renderer submits the Renderables to the event queue, which will be processed at the end of the frame.
-- At the end of the frame, the render manager calls once again the renderers to process the event queue and draw the Renderables.
-- The model renderer groups the renderables by Mesh and Material to minimize GPU state changes (CPU batching), sort them by opaques and transparents, and then uses instanced rendering to draw multiple copies of the same geometry with different transforms and materials, filtering out the ones that are not visible using frustum culling.
+- When the frame begins, the **Render Manager** is cleared and prepared to receive the **Renderables** for that frame. It calculates the frustum planes based on the camera's view/projection matrix, which will be used for frustum culling later.
+- During the update phase of the scene, the **Render Manager** receives the **Renderables** from the scene and prepares them for drawing sending them to the different renderers. For now, there is only one renderer, the model renderer, but in the future, there could be more specialized renderers (water, particles, voxels, etc.) that handle specific types of **Renderables** with different rendering techniques.
+- The model renderer submits the **Renderables** to the event queue, which will be processed at the end of the frame.
+- At the end of the frame, the **Render Manager** calls once again the renderers to process the event queue and draw the **Renderables**.
+- The model renderer groups the **Renderables** by **Mesh** and **Material** to minimize GPU state changes (CPU batching), sort them by opaques and transparents, and then uses instanced rendering to draw multiple copies of the same geometry with different transforms and materials, filtering out the ones that are not visible using frustum culling.
 
-> This way, instead of making a draw call for each Renderable, hundreds or thousands can be drawn with a single call, depending on the configured batch size, which significantly improves performance.
+> This way, instead of making a draw call for each **Renderable**, hundreds or thousands can be drawn with a single call, depending on the configured batch size, which significantly improves performance.
 
-> We can imagine, for example, a field of grass, where each blade of grass is a Renderable with the same geometry and material but with different positions and rotations. Instead of making a draw call for each blade, they can all be drawn with a single call using instanced rendering.
+> We can imagine, for example, a field of grass, where each blade of grass is a **Renderable** with the same geometry and material but with different positions and rotations. Instead of making a draw call for each blade, they can all be drawn with a single call using instanced rendering.
 
 This type of rendering is called forward renderer with instancing. It is well suited for simple scenes with a limited number of lights, which is the case for this project. Additionally, it is easier to implement and understand compared to more advanced rasterization techniques such as forward+, deferred rendering, or clustered rendering.
 
@@ -97,7 +97,7 @@ Another fundamentally different approach is ray tracing, which does not rely on 
 
 > For a good explanation of the diferent rendering techniques, I recommend this [blog](https://c0de517e.blogspot.com/2016/08/the-real-time-rendering-continuum.html) by Angelo Pesce.
 
-The model renderer also has a Frame UBO (Uniform Buffer Object) to send common data that affects all Renderables, such as the camera's view/projection matrix or light information (Sun or ambient light). This allows the shader to access this information without needing to send it each time a Renderable is drawn, which improves performance and simplifies the shader.
+The model renderer also has a **Frame UBO (Uniform Buffer Object)** to send common data that affects all **Renderables**, such as the camera's view/projection matrix or light information (Sun or ambient light). This allows the shader to access this information without needing to send it each time a **Renderable** is drawn, which improves performance and simplifies the shader.
 
 > Another optimization I implemented is calculating the model and normal matrix on the CPU, which avoids having to do it in the shader for each vertex, which can be costly in terms of performance, especially if there are many vertices.
 
