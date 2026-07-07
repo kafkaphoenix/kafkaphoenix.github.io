@@ -55,13 +55,19 @@ On import, the engine builds its own internal representation of this data. This 
 
 #### Cubemaps support
 
-I also implemented cubemap support from scratch. In my previous engine, textures and cubemaps were unified under a single texture asset, which introduced a lot of conditional logic and made the system harder to maintain.
+In my previous engine, textures and cubemaps were unified under a single texture asset, which introduced a lot of conditional logic and made the system harder to maintain.
 
 A **Cubemap asset** is responsible for loading the six faces, validating them, and creating the GPU cubemap texture.
 
 Rendering is handled independently by **SkyboxRenderer**, which draws a unit cube directly on the GPU (no imported mesh or CPU geometry), removes translation from the view matrix so the skybox stays centered on the camera, and samples the cubemap in the fragment shader to simulate an infinitely distant environment.
 
 ![Cubemap](cubemap.png)
+
+#### Texture arrays support
+
+I implemented support for **texture arrays** (`GL_TEXTURE_2D_ARRAY`), allowing multiple same-sized textures to be stored as layers in a single GPU resource. This reduces texture binding overhead and avoids the UV seam and mipmap bleeding issues of traditional texture atlases.
+
+> The **TextureArray** asset only uploads pre-assembled layers to the GPU. Layer generation is left to the caller, allowing the asset to remain generic and independent of application-specific logic.
 
 ### Core
 
